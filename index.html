@@ -1676,27 +1676,92 @@ function pickVoice(lang){
   || null;
 }
 
-function speak(text, lang=assistantLang(), onEnd=null){
-  if(!("speechSynthesis" in window)) return;
-  speechSynthesis.cancel();
+function splitSpeechText(text, maxLen=150){
+  // Mobile Safari/Chrome can stop long SpeechSynthesisUtterances early.
+  // Split only at natural sentence boundaries so every sentence is spoken.
+  const sentences=text.match(/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g) || [text];
+  const chunks=[];
+  let current="";
 
-  const u=new SpeechSynthesisUtterance(text);
-  u.lang=lang==="en" ? "en-US" : "ru-RU";
-  u.rate=lang==="en" ? .82 : .70;
-  u.pitch=1.0;
-  u.volume=1.0;
-
-  const voice=pickVoice(lang);
-  if(voice){
-    u.voice=voice;
-    u.lang=voice.lang;
+  for(const sentence of sentences){
+    const s=sentence.trim();
+    if(!s) continue;
+    if((current+" "+s).trim().length <= maxLen){
+      current=(current+" "+s).trim();
+    }else{
+      if(current) chunks.push(current);
+      if(s.length <= maxLen){
+        current=s;
+      }else{
+        // Very long sentence: split at commas/semicolons/spaces.
+        let rest=s;
+        while(rest.length>maxLen){
+          let cut=Math.max(
+            rest.lastIndexOf(", ",maxLen),
+            rest.lastIndexOf("; ",maxLen),
+            rest.lastIndexOf(" ",maxLen)
+          );
+          if(cut<60) cut=maxLen;
+          chunks.push(rest.slice(0,cut).trim());
+          rest=rest.slice(cut).trim();
+        }
+        current=rest;
+      }
+    }
   }
-
-  u.onend=()=>{if(onEnd) onEnd();};
-  u.onerror=()=>{if(onEnd) onEnd();};
-  speechSynthesis.speak(u);
+  if(current) chunks.push(current);
+  return chunks;
 }
 
+function speak(text, lang=assistantLang(), onEnd=null){
+  if(!("speechSynthesis" in window)){
+    if(onEnd) onEnd();
+    return;
+  }
+
+  speechSynthesis.cancel();
+
+  const chunks=splitSpeechText(text, 145);
+  let index=0;
+  let cancelled=false;
+
+  const playNext=()=>{
+    if(cancelled || index>=chunks.length){
+      if(!cancelled && onEnd) onEnd();
+      return;
+    }
+
+    const chunk=chunks[index++];
+    const u=new SpeechSynthesisUtterance(chunk);
+    u.lang=lang==="en" ? "en-US" : "ru-RU";
+
+    // Natural presentation speed: clear, but not slow.
+    u.rate=lang==="en" ? 0.92 : 0.90;
+    u.pitch=1.0;
+    u.volume=1.0;
+
+    const voice=pickVoice(lang);
+    if(voice){
+      u.voice=voice;
+      u.lang=voice.lang;
+    }
+
+    let finished=false;
+    const finish=()=>{
+      if(finished) return;
+      finished=true;
+      if(cancelled) return;
+      // Tiny pause between sentences/chunks makes the explanation sound natural.
+      setTimeout(playNext, 180);
+    };
+
+    u.onend=finish;
+    u.onerror=finish;
+    speechSynthesis.speak(u);
+  };
+
+  playNext();
+}
 if("speechSynthesis" in window){
   speechSynthesis.getVoices();
   speechSynthesis.addEventListener?.("voiceschanged",()=>speechSynthesis.getVoices());
@@ -1707,6 +1772,16 @@ function stopTour(){
   tourToken++;
   if("speechSynthesis" in window) speechSynthesis.cancel();
 }
+
+// Some mobile browsers pause speech when the page changes visibility.
+// Resume only while a guided tour is active.
+document.addEventListener("visibilitychange",()=>{
+  if(!document.hidden && tourActive && "speechSynthesis" in window){
+    setTimeout(()=>{
+      try{ speechSynthesis.resume(); }catch(e){}
+    },120);
+  }
+});
 
 function showAI(n, speakIt=false){
   const d=getStationText(n);
