@@ -1615,7 +1615,7 @@ document.getElementById("fullBtn").onclick=()=>{
 // AI ASSISTANT — calm bilingual guided tour (RU / EN).
 const aiContent={
   ru:{
-    intro:"Добро пожаловать! Я ваш виртуальный помощник и экскурсовод. Я спокойно проведу вас по всем шести сценам. Начнём с экологических угроз.",
+    intro:"Добро пожаловать! Я ваш виртуальный помощник и экскурсовод. Я проведу вас по всем шести сценам. Начнём с экологических угроз.",
     answers:{
       1:"Экологические угрозы — это загрязнение воздуха и воды, изменение климата и потеря лесов. На первой сцене вы видите промышленный объект и дым. Он показывает, как деятельность человека может влиять на окружающую среду.",
       2:"Эта сцена посвящена экологической безопасности Казахстана. Здесь показаны государственные меры, охрана природы и ответственное использование природных ресурсов. Главная идея — развитие страны должно идти вместе с заботой об окружающей среде.",
@@ -1627,7 +1627,7 @@ const aiContent={
     tour:["Экологические угрозы.","Безопасность в Казахстане.","Reduce, Reuse, Recycle.","Наши действия.","Утилизация отходов.","Природоохранные мероприятия."]
   },
   en:{
-    intro:"Welcome! I am your AI assistant and guide. I will calmly take you through all six scenes. Let us start with environmental threats.",
+    intro:"Welcome! I am your AI assistant and guide. I will take you through all six scenes. Let us start with environmental threats.",
     answers:{
       1:"Environmental threats include air and water pollution, climate change, and the loss of forests. In the first scene, you can see an industrial facility and smoke. It shows how human activity can affect the environment.",
       2:"This scene is about environmental safety in Kazakhstan. It represents environmental laws, nature protection, and responsible use of natural resources. The main idea is that national development should go together with care for the environment.",
@@ -1714,29 +1714,39 @@ function splitSpeechText(text, maxLen=150){
 }
 
 function speak(text, lang=assistantLang(), onEnd=null){
-  if(!("speechSynthesis" in window)){
+  if(!('speechSynthesis' in window)){
     if(onEnd) onEnd();
     return;
   }
 
+  // Mobile Safari/Chrome are much more reliable when we use short utterances
+  // and explicitly keep the queue alive. Long utterances may silently stop.
   speechSynthesis.cancel();
 
-  const chunks=splitSpeechText(text, 145);
+  const chunks=splitSpeechText(text, 115);
   let index=0;
-  let cancelled=false;
+  let stopped=false;
+  let watchdog=null;
+
+  const finishAll=()=>{
+    if(watchdog) clearTimeout(watchdog);
+    if(!stopped && onEnd) onEnd();
+  };
 
   const playNext=()=>{
-    if(cancelled || index>=chunks.length){
-      if(!cancelled && onEnd) onEnd();
+    if(stopped || index>=chunks.length){
+      finishAll();
       return;
     }
 
+    if(watchdog) clearTimeout(watchdog);
+
     const chunk=chunks[index++];
     const u=new SpeechSynthesisUtterance(chunk);
-    u.lang=lang==="en" ? "en-US" : "ru-RU";
+    u.lang=lang==='en' ? 'en-US' : 'ru-RU';
 
-    // Natural presentation speed: clear, but not slow.
-    u.rate=lang==="en" ? 0.92 : 0.90;
+    // Normal conversational speed. 1.0 is deliberately used on mobile too.
+    u.rate=lang==='en' ? 1.0 : 1.0;
     u.pitch=1.0;
     u.volume=1.0;
 
@@ -1746,22 +1756,46 @@ function speak(text, lang=assistantLang(), onEnd=null){
       u.lang=voice.lang;
     }
 
-    let finished=false;
-    const finish=()=>{
-      if(finished) return;
-      finished=true;
-      if(cancelled) return;
-      // Tiny pause between sentences/chunks makes the explanation sound natural.
-      setTimeout(playNext, 180);
+    let done=false;
+    const next=()=>{
+      if(done || stopped) return;
+      done=true;
+      if(watchdog) clearTimeout(watchdog);
+      // A tiny natural pause, then continue automatically.
+      setTimeout(playNext,140);
     };
 
-    u.onend=finish;
-    u.onerror=finish;
+    u.onend=next;
+    u.onerror=()=>{
+      // Mobile browsers can report an intermittent 'interrupted' error.
+      // Do not end the whole tour because of one failed chunk.
+      next();
+    };
+
     speechSynthesis.speak(u);
+
+    // Safety net: some mobile browsers never fire onend after backgrounding
+    // or changing voices. Advance after an estimated maximum duration.
+    const estimatedMs=Math.max(7000, Math.min(18000, chunk.length*115));
+    watchdog=setTimeout(()=>{
+      if(done || stopped) return;
+      try{ speechSynthesis.cancel(); }catch(e){}
+      next();
+    }, estimatedMs);
+
+    // iOS can pause a newly queued utterance. Resume shortly after speaking.
+    setTimeout(()=>{
+      if(!stopped){
+        try{ speechSynthesis.resume(); }catch(e){}
+      }
+    },80);
   };
 
+  // Return a stop-capable function through the tour state rather than relying
+  // on a browser-specific SpeechSynthesis cancellation callback.
   playNext();
 }
+
 if("speechSynthesis" in window){
   speechSynthesis.getVoices();
   speechSynthesis.addEventListener?.("voiceschanged",()=>speechSynthesis.getVoices());
@@ -1811,7 +1845,7 @@ function runTourStep(step, token){
 
   speak(text,assistantLang(),()=>{
     if(!tourActive || token!==tourToken)return;
-    setTimeout(()=>runTourStep(step+1,token),850);
+    setTimeout(()=>runTourStep(step+1,token),650);
   });
 }
 
@@ -1824,7 +1858,7 @@ function startTour(){
   document.getElementById("bubble").innerHTML=
     "<strong>👋 "+(lang==="en"?"Welcome!":"Добро пожаловать!")+"</strong>"+intro;
   speak(intro,lang,()=>{
-    if(tourActive && token===tourToken) setTimeout(()=>runTourStep(1,token),900);
+    if(tourActive && token===tourToken) setTimeout(()=>runTourStep(1,token),550);
   });
 }
 
