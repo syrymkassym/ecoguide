@@ -1,0 +1,1624 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Экологическая безопасность — 3D-стенд</title>
+
+<style>
+:root{
+  --bg:#efeee5;--paper:#faf9f2;--ink:#183426;--muted:#718073;
+  --green:#062417;--green2:#0d3020;--line:#35583a;
+  --lime:#a9d75d;--lime2:#d3e991;--white:#f5f6ec;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+body{overflow:hidden}
+.app{
+  height:100vh;display:flex;flex-direction:column;
+  background:
+    radial-gradient(circle at 50% 42%,#fffef8 0,#f1f0e7 46%,#dce4d8 100%);
+}
+.topbar{
+  height:82px;flex:0 0 82px;background:rgba(251,250,243,.95);
+  border:1px solid #c9d0c5;border-radius:0 0 24px 24px;
+  display:flex;align-items:center;padding:0 30px;gap:26px;
+  box-shadow:0 5px 22px rgba(20,48,34,.08);
+  backdrop-filter:blur(16px);z-index:20
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:245px}
+.brandMark{
+  width:50px;height:50px;border-radius:15px;background:#34733a;color:#e3f3be;
+  display:grid;place-items:center;font-size:28px;box-shadow:inset 0 0 0 1px #ffffff30
+}
+.brand small{display:block;font-size:10px;letter-spacing:3px;color:#7b897b;font-weight:800}
+.brand b{display:block;font-size:17px;letter-spacing:1px}
+.langs{display:flex;border:1px solid #d2d9ce;border-radius:28px;padding:4px;background:#fffefa}
+.langs button{
+  border:0;background:transparent;border-radius:22px;padding:9px 14px;
+  font-weight:800;color:#21382b;cursor:pointer
+}
+.langs button.active{background:#08291b;color:#fff}
+.nav{display:flex;align-items:center;justify-content:center;gap:24px;flex:1}
+.nav a{font-size:14px;color:#173326;text-decoration:none;white-space:nowrap}
+.nav a.home{font-size:18px}
+.theme{display:flex;border:1px solid #d1d8ce;border-radius:28px;overflow:hidden}
+.headerSpacer{flex:1;min-width:0}
+.headerControls{display:flex;align-items:center;gap:10px;margin-left:auto}
+.headerControls .theme,.headerControls .langs{flex-shrink:0}
+@media(max-width:900px){.headerControls{margin-left:auto}.headerControls .theme button{width:42px}.headerControls .langs button{padding:8px 11px}}
+.theme button{
+  border:0;background:transparent;width:50px;height:42px;font-size:19px;
+  cursor:pointer;color:#183426
+}
+
+.main{
+  min-height:0;flex:1;display:grid;
+  grid-template-columns:236px minmax(500px,1fr) 340px;
+  gap:12px;padding:28px 8px 0
+}
+.panel{
+  background:linear-gradient(180deg,#062416,#092b1b 68%,#062115);
+  color:#edf4e7;border:1px solid #3d5d37;border-radius:22px;
+  box-shadow:0 18px 44px #193b2420;overflow:hidden
+}
+.left{padding:20px 14px}
+.sectionTitle{font-size:12px;letter-spacing:1.4px;font-weight:900;margin:6px 10px 17px;color:#edf2e8}
+.steps{display:flex;flex-direction:column;gap:4px}
+.step{
+  display:grid;grid-template-columns:36px 34px 1fr;align-items:center;
+  min-height:61px;border-radius:15px;padding:4px 7px;cursor:pointer;transition:.2s
+}
+.step:hover,.step.active{background:linear-gradient(90deg,#2a552c,#234a28)}
+.num{width:28px;height:28px;border-radius:50%;background:#9ccc55;color:#14301d;display:grid;place-items:center;font-weight:900}
+.stepIcon{font-size:22px;color:#a8d864}
+.stepText{font-size:12px;line-height:1.2}
+.sep{height:1px;background:#a6c97825;margin:14px 3px}
+.help{font-size:10px;line-height:1.55;color:#b9c7b6;padding:0 9px}
+.miniScene{
+  height:115px;position:relative;margin:12px 0 0;border-radius:16px;
+  background:radial-gradient(circle at 50% 35%,#4c8c4b,#092617 62%);
+  overflow:hidden;border:1px solid #66843f55
+}
+.miniScene:after{content:"🌍";position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);font-size:56px;filter:drop-shadow(0 7px 7px #0006)}
+
+.center{
+  min-width:0;position:relative;display:flex;flex-direction:column;
+  align-items:center;overflow:hidden;border-radius:28px
+}
+.center:before{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse at 50% 30%,rgba(255,255,245,.75),rgba(255,255,245,0) 48%),
+    radial-gradient(ellipse at 50% 100%,rgba(22,59,34,.30),transparent 65%);
+}
+.eyebrow,.title,.subtitle,.scene{position:relative;z-index:1}
+.eyebrow{font-size:12px;letter-spacing:1.5px;color:#78877a;margin-top:2px}
+.title{
+  margin:4px 0 4px;text-align:center;font-size:32px;line-height:1.05;
+  letter-spacing:-1.1px;font-weight:950;color:#173526
+}
+.subtitle{font-size:13px;color:#68756b;text-align:center}
+.scene{
+  position:relative;flex:1;min-height:0;width:100%;overflow:hidden;
+  background:
+    radial-gradient(ellipse at 50% 38%,rgba(255,255,245,.75) 0%,rgba(218,225,204,.36) 35%,rgba(54,83,52,.12) 65%,rgba(24,48,32,.15) 100%);
+}
+.scene canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
+.scene canvas.dragging{cursor:grabbing}
+
+.controls{
+  position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:0;background:#0a291cf0;
+  border:1px solid #688046;border-radius:25px;padding:4px;z-index:12;
+  box-shadow:0 8px 25px #173a2330
+}
+.controls button{
+  border:0;background:transparent;color:#ecf2e8;padding:8px 13px;
+  border-radius:19px;font-size:11px;cursor:pointer
+}
+.controls button:hover{background:#24472b}
+.controls button.on{color:#d3ea87}
+
+.tip{
+  position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  padding:11px 18px;border:1px solid #63823e;background:#082718ed;color:#eff4e7;
+  border-radius:28px;font-size:11px;white-space:nowrap;z-index:12;
+  box-shadow:0 8px 25px #173a2326
+}
+.tip span{color:#c7e477}
+.selectedTag{
+  position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:13;
+  display:none;background:#0a291ced;border:1px solid #708b46;color:#d9ec9d;
+  border-radius:20px;padding:8px 14px;font-size:11px;font-weight:800
+}
+.selectedTag.show{display:block}
+
+.right{padding:15px 15px;display:flex;flex-direction:column;min-height:0}
+.aiHead{display:flex;align-items:center;gap:12px;padding:5px 8px 15px}
+.bot{
+  width:50px;height:50px;border-radius:50%;display:grid;place-items:center;
+  background:#d8eeb0;color:#173520;font-size:27px
+}
+.aiHead b{font-size:16px}
+.online{font-size:11px;color:#8ac554;margin-top:3px}
+.online:before{
+  content:"";display:inline-block;width:8px;height:8px;background:#61be52;
+  border-radius:50%;margin-right:5px
+}
+.bubble{
+  background:linear-gradient(145deg,#173d25,#0c291a);border:1px solid #456c38;
+  border-radius:16px;padding:16px;color:#edf4e8;font-size:13px;line-height:1.55;min-height:152px
+}
+.bubble strong{display:block;font-size:17px;margin-bottom:8px}
+.aiButtons{display:flex;gap:10px;margin-top:12px}
+.primary,.voice{
+  height:50px;border-radius:12px;border:1px solid #577b3c;
+  background:#1a4527;color:#e4edcf;cursor:pointer
+}
+.primary{flex:1;font-size:13px}
+.voice{width:52px;font-size:19px}
+.questions{display:flex;flex-direction:column;gap:8px;margin-top:13px}
+.question{
+  border:1px solid #46663a80;background:#0f2d1e;color:#e3ebdf;
+  border-radius:11px;padding:10px 12px;text-align:left;font-size:11px;cursor:pointer
+}
+.question:hover{background:#193b25}
+.input{
+  margin-top:auto;display:flex;background:#102c1d;border:1px solid #526e4580;
+  border-radius:13px;overflow:hidden
+}
+.input input{
+  min-width:0;flex:1;background:transparent;border:0;outline:0;color:#edf4e8;
+  padding:13px;font-size:12px
+}
+.input button{width:48px;border:0;background:transparent;color:#d6e6c0;font-size:18px;cursor:pointer}
+
+.stats{
+  height:100px;flex:0 0 100px;display:grid;grid-template-columns:repeat(5,1fr);
+  background:linear-gradient(180deg,#0a291a,#051c12);border:1px solid #38553a;
+  border-radius:22px 22px 0 0;color:#edf4e8;overflow:hidden;z-index:10
+}
+.stat{display:flex;align-items:center;gap:14px;padding:14px 26px;border-right:1px solid #abc87b25}
+.stat:last-child{border-right:0}
+.statIcon{font-size:25px}
+.stat b{display:block;color:#c7e676;font-size:18px}
+.stat span{display:block;color:#aebaaa;font-size:10px;line-height:1.3;margin-top:3px}
+
+.darkMode .app{background:#101b16}
+.darkMode .topbar{background:#0d1b14;color:#eef5e8}
+.darkMode .nav a,.darkMode .theme button,.darkMode .brand b{color:#eef5e8}
+.darkMode .langs{background:#13231a;border-color:#38513e}
+.darkMode .langs button{color:#dfe9dd}
+.darkMode .center .title{color:#edf4e8}
+.darkMode .subtitle,.darkMode .eyebrow{color:#9eaa9e}
+
+@media(max-width:1180px){
+  .main{grid-template-columns:205px minmax(430px,1fr) 300px}
+  .nav{gap:14px}.nav a{font-size:12px}.brand{min-width:205px}
+  .stat{padding:12px 15px}
+}
+@media(max-width:900px){
+  body{overflow:auto}.app{height:auto;min-height:100vh}
+  .topbar{height:auto;min-height:82px;flex-wrap:wrap;padding:10px 14px}
+  .nav{order:5;width:100%;justify-content:flex-start;overflow:auto;padding-bottom:4px}
+  .main{grid-template-columns:1fr;padding:16px 8px}
+  .left{display:none}.center{min-height:700px}.right{min-height:600px}
+  .stats{height:auto;grid-template-columns:1fr 1fr}.stat{min-height:78px}
+  .title{font-size:25px}
+  .station-card{display:none}
+}
+.aiButtons .primary{transition:all .2s ease}
+.aiButtons .primary.speaking{box-shadow:0 0 0 2px #a9d75d55,0 0 22px #a9d75d55}
+.bubble{transition:opacity .25s ease,transform .25s ease}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brandMark">♧</div>
+    <div><small>ЭКОЛОГИЧЕСКАЯ</small><b>БЕЗОПАСНОСТЬ</b></div>
+  </div>
+
+  <div class="headerSpacer"></div>
+
+  <div class="headerControls">
+    <div class="theme">
+      <button id="lightBtn" aria-label="Светлая тема">☼</button>
+      <button id="darkBtn" aria-label="Тёмная тема">☾</button>
+    </div>
+    <div class="langs" aria-label="Выбор языка">
+      <button class="active" data-lang="ru">RU</button>
+      <button data-lang="kz">KZ</button>
+      <button data-lang="en">EN</button>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+
+<aside class="panel left">
+  <div class="sectionTitle">НАВИГАЦИЯ ПО МАКЕТУ</div>
+  <div class="steps">
+    <div class="step active" data-step="1"><div class="num">1</div><div class="stepIcon">♨</div><div class="stepText">Экологические<br>угрозы</div></div>
+    <div class="step" data-step="2"><div class="num">2</div><div class="stepIcon">♧</div><div class="stepText">Безопасность в<br>Казахстане</div></div>
+    <div class="step" data-step="3"><div class="num">3</div><div class="stepIcon">♻</div><div class="stepText">Reduce<br>Reuse<br>Recycle</div></div>
+    <div class="step" data-step="4"><div class="num">4</div><div class="stepIcon">♙</div><div class="stepText">Что может сделать<br>каждый из нас?</div></div>
+    <div class="step" data-step="5"><div class="num">5</div><div class="stepIcon">▥</div><div class="stepText">Утилизация<br>отходов</div></div>
+    <div class="step" data-step="6"><div class="num">6</div><div class="stepIcon">♧</div><div class="stepText">Участие в<br>природоохранных<br>мероприятиях</div></div>
+  </div>
+
+  <div class="sep"></div>
+  <div class="sectionTitle">УПРАВЛЕНИЕ 3D</div>
+  <div class="help">
+    🖱 Перетаскивайте модель мышью, чтобы вращать её на 360°.<br><br>
+    ◉ Колесо мыши — приближение.<br><br>
+    ◉ Два пальца — вращение и масштаб.
+  </div>
+
+  <div class="sep"></div>
+  <div class="sectionTitle">ИНТЕРАКТИВНЫЙ СТЕНД</div>
+  <div class="help">Вращайте модель, нажимайте на этапы и узнавайте больше об экологической безопасности.</div>
+  <div class="miniScene"></div>
+</aside>
+
+<section class="center">
+  <div class="eyebrow">ИНТЕРАКТИВНЫЙ 3D-СТЕНД</div>
+  <h1 class="title">ВМЕСТЕ МЫ ДЕЛАЕМ МИР ЧИЩЕ!</h1>
+  <div class="subtitle">Интерактивный 3D-стенд об экологической безопасности и устойчивом будущем</div>
+
+  <div class="scene" id="scene">
+    <canvas id="threeCanvas"></canvas>
+    <div class="selectedTag" id="selectedTag"></div>
+
+    <div class="controls">
+      <button id="resetBtn">↻ Сбросить</button>
+      <button id="autoBtn" class="on">▶ Авто</button>
+      <button id="zoomIn">⌕ Приблизить</button>
+      <button id="zoomOut">⊖ Отдалить</button>
+      <button id="fullBtn">⛶ Во весь экран</button>
+    </div>
+
+    <div class="tip">💡 <span>Нажимайте на любую сцену макета для получения подробной информации</span></div>
+  </div>
+</section>
+
+<aside class="panel right">
+  <div class="aiHead">
+    <div class="bot">🤖</div>
+    <div><b>AI-АССИСТЕНТ</b><div class="online">Онлайн</div></div>
+  </div>
+
+  <div class="bubble" id="bubble">
+    <strong>👋 Добро пожаловать!</strong>
+    Я ваш виртуальный помощник и экскурсовод.<br><br>
+    Сейчас я проведу для вас экскурсию по этому стенду и подробно расскажу об экологической безопасности.
+  </div>
+
+  <div class="aiButtons">
+    <button class="primary" id="tourBtn">▶ &nbsp; Начать экскурсию</button>
+    <button class="voice" id="voiceBtn">🔊</button>
+  </div>
+
+  <div class="questions">
+    <button class="question" data-q="1">Какие основные экологические угрозы?</button>
+    <button class="question" data-q="3">Что такое Reduce, Reuse, Recycle?</button>
+    <button class="question" data-q="5">Как правильно сортировать отходы?</button>
+    <button class="question" data-q="4">Как я могу помочь природе?</button>
+    <button class="question" data-q="2">Экологическая ситуация в Казахстане?</button>
+    <button class="question" data-q="6">Какие мероприятия можно посетить?</button>
+  </div>
+
+  <div class="input">
+    <input id="askInput" placeholder="Задайте любой вопрос...">
+    <button id="askBtn">🎙</button>
+  </div>
+</aside>
+
+</main>
+
+<footer class="stats">
+  <div class="stat"><div class="statIcon">🌍</div><div><b>&gt;1,3°C</b><span>Уже повысилась<br>температура на планете</span></div></div>
+  <div class="stat"><div class="statIcon">💧</div><div><b>75%</b><span>Пресной воды используется<br>человеком</span></div></div>
+  <div class="stat"><div class="statIcon">🌲</div><div><b>24</b><span>Млн га лесов теряется<br>ежегодно</span></div></div>
+  <div class="stat"><div class="statIcon">♻</div><div><b>2</b><span>Тонны отходов производит<br>человек в год</span></div></div>
+  <div class="stat"><div class="statIcon">👥</div><div><b>Каждый из нас</b><span>может изменить будущее<br>нашей планеты</span></div></div>
+</footer>
+
+</div>
+
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+
+const canvas = document.getElementById("threeCanvas");
+const host = document.getElementById("scene");
+
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias:true,
+  alpha:true,
+  powerPreference:"high-performance"
+});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1,2));
+renderer.setSize(host.clientWidth,host.clientHeight,false);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(
+  32,
+  host.clientWidth / host.clientHeight,
+  .1,
+ 100
+);
+
+camera.position.set(0,7.5,11.5);
+
+const hemi = new THREE.HemisphereLight(0xf5f6df,0x082116,2.7);
+scene.add(hemi);
+
+const key = new THREE.DirectionalLight(0xfff5dc,4.1);
+key.position.set(5,11,6);
+key.castShadow = true;
+key.shadow.mapSize.width = 2048;
+key.shadow.mapSize.height = 2048;
+scene.add(key);
+
+const fill = new THREE.DirectionalLight(0x9bd16b,2.2);
+fill.position.set(-7,6,-6);
+scene.add(fill);
+
+const centerLight = new THREE.PointLight(0xc8e978,2.2,9);
+centerLight.position.set(0,5.5,0);
+scene.add(centerLight);
+
+const world = new THREE.Group();
+scene.add(world);
+
+let yaw = 0;
+let pitch = .06;
+let distance = 11.5;
+let auto = true;
+let drag = false;
+let lastX = 0;
+let lastY = 0;
+let velX = 0;
+
+const stationData = [
+  {
+    title:"ЭКОЛОГИЧЕСКИЕ УГРОЗЫ",
+    color:0xe56743,
+    short:"Угрозы",
+    x:-3.35,z:1.7,
+    bullets:["Загрязнение воздуха","Изменение климата","Загрязнение воды","Вырубка лесов"],
+    i18n:{
+      kz:{title:"ЭКОЛОГИЯЛЫҚ ҚАУІПТЕР",short:"Қауіптер",bullets:["Ауаның ластануы","Климаттың өзгеруі","Судың ластануы","Ормандардың кесілуі"]},
+      en:{title:"ENVIRONMENTAL THREATS",short:"Threats",bullets:["Air pollution","Climate change","Water pollution","Deforestation"]}
+    }
+  },
+  {
+    title:"ЭКОЛОГИЧЕСКАЯ БЕЗОПАСНОСТЬ В КАЗАХСТАНЕ",
+    color:0x7ba84b,
+    short:"Казахстан",
+    x:-1.15,z:3.15,
+    bullets:["Экологические законы","Госпрограммы","Охрана природы","Рациональное использование ресурсов"],
+    i18n:{
+      kz:{title:"ҚАЗАҚСТАНДАҒЫ ЭКОЛОГИЯЛЫҚ ҚАУІПСІЗДІК",short:"Қазақстан",bullets:["Экологиялық заңдар","Мемлекеттік бағдарламалар","Табиғатты қорғау","Ресурстарды ұтымды пайдалану"]},
+      en:{title:"ENVIRONMENTAL SAFETY IN KAZAKHSTAN",short:"Kazakhstan",bullets:["Environmental laws","Government programs","Nature protection","Responsible resource use"]}
+    }
+  },
+  {
+    title:"REDUCE · REUSE · RECYCLE",
+    color:0x76ad48,
+    short:"3R",
+    x:2.35,z:2.0,
+    bullets:["Сокращай","Используй повторно","Перерабатывай","Сохраняй ресурсы"],
+    i18n:{
+      kz:{title:"REDUCE · REUSE · RECYCLE",short:"3R",bullets:["Тұтынуды азайт","Қайта пайдалан","Қайта өңде","Ресурстарды сақта"]},
+      en:{title:"REDUCE · REUSE · RECYCLE",short:"3R",bullets:["Reduce consumption","Reuse items","Recycle materials","Save resources"]}
+    }
+  },
+  {
+    title:"ЧТО МОЖЕТ СДЕЛАТЬ КАЖДЫЙ ИЗ НАС?",
+    color:0xd2ae42,
+    short:"Наши действия",
+    x:2.75,z:-1.8,
+    bullets:["Экономь воду и энергию","Сортируй отходы","Используй экотовары","Сажай деревья"],
+    i18n:{
+      kz:{title:"ӘРҚАЙСЫМЫЗ НЕ ІСТЕЙ АЛАМЫЗ?",short:"Біздің әрекеттеріміз",bullets:["Суды және энергияны үнемде","Қалдықтарды сұрыпта","Экоөнімдерді пайдалан","Ағаш отырғыз"]},
+      en:{title:"WHAT CAN EACH OF US DO?",short:"Our actions",bullets:["Save water and energy","Sort your waste","Choose eco-friendly products","Plant trees"]}
+    }
+  },
+  {
+    title:"УТИЛИЗАЦИЯ ОТХОДОВ",
+    color:0x55a4b6,
+    short:"Утилизация",
+    x:0,z:-3.15,
+    bullets:["Сортировка отходов","Переработка","Безопасная утилизация","Опасные отходы отдельно"],
+    i18n:{
+      kz:{title:"ҚАЛДЫҚТАРДЫ КӘДЕГЕ ЖАРАТУ",short:"Кәдеге жарату",bullets:["Қалдықтарды сұрыптау","Қайта өңдеу","Қауіпсіз кәдеге жарату","Қауіпті қалдықтарды бөлек жинау"]},
+      en:{title:"WASTE MANAGEMENT",short:"Waste",bullets:["Waste sorting","Recycling","Safe disposal","Keep hazardous waste separate"]}
+    }
+  },
+  {
+    title:"УЧАСТИЕ В ПРИРОДООХРАННЫХ МЕРОПРИЯТИЯХ",
+    color:0x9564c7,
+    short:"Мероприятия",
+    x:-2.8,z:-1.8,
+    bullets:["Экологические акции","Субботники","Посадка деревьев","Волонтёрство"],
+    i18n:{
+      kz:{title:"ТАБИҒАТТЫ ҚОРҒАУ ІС-ШАРАЛАРЫНА ҚАТЫСУ",short:"Іс-шаралар",bullets:["Экологиялық акциялар","Сенбіліктер","Ағаш отырғызу","Волонтерлік"]},
+      en:{title:"ENVIRONMENTAL ACTIVITIES",short:"Activities",bullets:["Environmental campaigns","Community cleanups","Tree planting","Volunteering"]}
+    }
+  }
+];
+
+function mat(color,rough=.65,metal=0,em=0){
+  return new THREE.MeshStandardMaterial({
+    color,
+    roughness:rough,
+    metalness:metal,
+    emissive:em ? color : 0,
+    emissiveIntensity:em
+  });
+}
+
+function mesh(geo,m,x=0,y=0,z=0){
+  const o = new THREE.Mesh(geo,m);
+  o.position.set(x,y,z);
+  o.castShadow = true;
+  o.receiveShadow = true;
+  return o;
+}
+
+function box(w,h,d,c,x=0,y=0,z=0){
+  return mesh(new THREE.BoxGeometry(w,h,d),mat(c),x,y,z);
+}
+
+function cyl(r,h,c,x=0,y=0,z=0,seg=32){
+  return mesh(new THREE.CylinderGeometry(r,r,h,seg),mat(c),x,y,z);
+}
+
+function sphere(r,c,x=0,y=0,z=0){
+  return mesh(new THREE.SphereGeometry(r,28,20),mat(c),x,y,z);
+}
+
+function tree(x,z,s=1,dead=false){
+  const g = new THREE.Group();
+  g.position.set(x,0,z);
+
+  g.add(cyl(.11*s,.75*s,dead ? 0x554536 : 0x76523b,0,.38*s,0));
+
+  if(dead){
+    g.add(cyl(.055*s,.55*s,0x51473d,-.22*s,.85*s,0));
+    g.add(cyl(.05*s,.4*s,0x51473d,.2*s,.82*s,0));
+  }else{
+    g.add(sphere(.44*s,0x3d7438,0,.78*s,0));
+    g.add(sphere(.32*s,0x5d9943,-.23*s,1.03*s,.02));
+    g.add(sphere(.35*s,0x70ad4c,.23*s,1.02*s,.04));
+    g.add(sphere(.25*s,0x83bb53,0,1.24*s,.02));
+  }
+
+  return g;
+}
+
+function ring(x,z,r,c){
+  const o = new THREE.Mesh(
+    new THREE.TorusGeometry(r,.075,8,64),
+    mat(c,.38,0,1)
+  );
+  o.rotation.x = Math.PI/2;
+  o.position.set(x,.42,z);
+  return o;
+}
+
+function stationGlow(radius,color){
+  const material = new THREE.MeshBasicMaterial({
+    color,
+    transparent:true,
+    opacity:.16,
+    side:THREE.DoubleSide,
+    depthWrite:false
+  });
+
+  const o = new THREE.Mesh(
+    new THREE.CircleGeometry(radius,64),
+    material
+  );
+
+  o.rotation.x = -Math.PI/2;
+  o.position.y = .055;
+  return o;
+}
+
+function makeTitleCard(title,color){
+  const c=document.createElement("canvas");
+  c.width=760; c.height=180;
+  const ctx=c.getContext("2d");
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.fillStyle="#062719";
+  roundRectCanvas(ctx,8,8,744,164,28); ctx.fill();
+  ctx.strokeStyle="#7fae52"; ctx.lineWidth=4; ctx.stroke();
+  ctx.fillStyle="#a8d45e"; roundRectCanvas(ctx,20,20,10,140,5); ctx.fill();
+  ctx.fillStyle="#eef4e8"; ctx.font="900 29px Arial"; ctx.textAlign="center"; ctx.textBaseline="middle";
+  const words=title.split(" ");
+  let lines=[title];
+  if(title.length>24){ const mid=Math.ceil(words.length/2); lines=[words.slice(0,mid).join(" "),words.slice(mid).join(" ")]; }
+  lines.forEach((line,i)=>ctx.fillText(line,390,lines.length===1?90:(65+i*52)));
+  const tex=new THREE.CanvasTexture(c); tex.colorSpace=THREE.SRGBColorSpace;
+  const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false,depthWrite:false}));
+  sprite.scale.set(2.55,.60,1); return sprite;
+}
+
+function makeNumberMarker(number,color){
+  const c=document.createElement("canvas"); c.width=256; c.height=256;
+  const ctx=c.getContext("2d"); ctx.clearRect(0,0,256,256);
+  const grad=ctx.createRadialGradient(128,128,38,128,128,118);
+  grad.addColorStop(0,"rgba(205,241,125,.95)"); grad.addColorStop(.48,"rgba(126,184,69,.55)"); grad.addColorStop(1,"rgba(126,184,69,0)");
+  ctx.fillStyle=grad; ctx.beginPath(); ctx.arc(128,128,120,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle="#8fca4d"; ctx.beginPath(); ctx.arc(128,128,70,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle="#eff7d5"; ctx.lineWidth=7; ctx.beginPath(); ctx.arc(128,128,70,0,Math.PI*2); ctx.stroke();
+  ctx.fillStyle="#14351f"; ctx.font="900 72px Arial"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText(String(number),128,128);
+  const tex=new THREE.CanvasTexture(c); tex.colorSpace=THREE.SRGBColorSpace;
+  const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false,depthWrite:false}));
+  sprite.scale.set(.78,.78,1); return sprite;
+}
+
+function roundRectCanvas(ctx,x,y,w,h,r){
+  ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+}
+
+function addStationMarkers(g,d,index){
+  const hotspot=new THREE.Mesh(new THREE.TorusGeometry(.72,.075,12,64),new THREE.MeshBasicMaterial({color:d.color,transparent:true,opacity:.95}));
+  hotspot.rotation.x=Math.PI/2; hotspot.position.set(0,.49,0); g.add(hotspot);
+  const halo=new THREE.Mesh(new THREE.TorusGeometry(.90,.025,8,64),new THREE.MeshBasicMaterial({color:d.color,transparent:true,opacity:.28}));
+  halo.rotation.x=Math.PI/2; halo.position.set(0,.50,0); g.add(halo);
+  const marker=new THREE.Group(); marker.position.set(0,1.55,.30);
+  const number=makeNumberMarker(index+1,d.color); marker.add(number);
+  const title=makeTitleCard(d.title,d.color); title.position.set(0,.73,0); marker.add(title);
+  g.add(marker);
+  g.userData.marker=marker; g.userData.hotspot=hotspot; g.userData.halo=halo; g.userData.titleSprite=title; g.userData.numberSprite=number;
+}
+
+function addWindow(g,x,y,z,light=true){
+  g.add(
+    box(.14,.14,.035,light ? 0xe7e7bd : 0x35443a,x,y,z)
+  );
+}
+
+function addPerson(g,x,z,scale=1,shirt=0x507f48){
+  const p = new THREE.Group();
+  p.position.set(x,0,z);
+  p.scale.setScalar(scale);
+
+  p.add(sphere(.12,0xd7ae82,0,1.05,0));
+  p.add(cyl(.11,.38,shirt,0,.78,0));
+  p.add(cyl(.045,.34,0x29382d,-.08,.43,0));
+  p.add(cyl(.045,.34,0x29382d,.08,.43,0));
+  p.add(cyl(.035,.25,0xd7ae82,-.14,.72,.02));
+  p.add(cyl(.035,.25,0xd7ae82,.14,.72,.02));
+
+  g.add(p);
+}
+
+function createPollutionScene(g){
+  // ground
+  g.add(cyl(.72,.07,0x4b4439,0,.34,0,48));
+
+  // factory
+  g.add(box(1.05,.72,.78,0x555a55,0,.72,0));
+  g.add(box(1.18,.12,.88,0x373d39,0,1.12,0));
+
+  // windows
+  [-.3,0,.3].forEach(x=>{
+    addWindow(g,x,.72,.41,true);
+    addWindow(g,x,.96,.41,false);
+  });
+
+  // chimneys
+  [-.34,0,.34].forEach(x=>{
+    g.add(cyl(.075,.8,0x3a3e3b,x,1.45,0,20));
+    g.add(cyl(.105,.12,0xb84d3d,x,1.85,0,20));
+    g.add(cyl(.12,.06,0x252a27,x,1.93,0,20));
+  });
+
+  // smoke
+  for(let i=0;i<9;i++){
+    const s=sphere(.13+Math.random()*.08,0x5f625f,
+      (Math.random()-.5)*.6,
+      2.05+i*.12,
+      (Math.random()-.5)*.18);
+    s.scale.set(1,1.15,1);
+    g.add(s);
+  }
+
+  // pollution puddles
+  for(let i=0;i<3;i++){
+    const p=new THREE.Mesh(
+      new THREE.CircleGeometry(.18+Math.random()*.13,24),
+      new THREE.MeshStandardMaterial({color:0x51483c,roughness:1})
+    );
+    p.rotation.x=-Math.PI/2;
+    p.position.set(-.35+i*.32,.38,.38+Math.random()*.12);
+    g.add(p);
+  }
+
+  g.add(tree(-.9,.05,.5,true));
+  g.add(tree(.9,.04,.46,true));
+}
+
+function createKazakhstanScene(g){
+  // plaza
+  g.add(cyl(1.0,.07,0x777d63,0,.37,0,48));
+
+  // main building
+  g.add(box(1.15,.72, .72,0xc6b991,0,.76,0));
+  g.add(box(1.3,.10,.82,0x9e8f6c,0,1.15,0));
+
+  // columns
+  [-.38,-.19,0,.19,.38].forEach(x=>{
+    g.add(cyl(.045,.65,0xe6dcc0,x,.77,.39,16));
+  });
+
+  // upper dome
+  const dome=new THREE.Mesh(
+    new THREE.SphereGeometry(.34,32,16,0,Math.PI*2,0,Math.PI/2),
+    mat(0xa69c76,.55)
+  );
+  dome.position.set(0,1.16,0);
+  dome.castShadow=true;
+  g.add(dome);
+
+  // windows
+  [-.32,0,.32].forEach(x=>addWindow(g,x,.76,.39,true));
+
+  // flag
+  g.add(cyl(.022,.9,0xe0dfd0,.58,1.48,0,16));
+  g.add(box(.42,.24,.025,0x55a84d,.79,1.78,0));
+
+  // sun symbol
+  g.add(sphere(.035,0xe8c94f,.79,1.78,.025));
+
+  // trees
+  g.add(tree(-.95,.02,.55));
+  g.add(tree(.98,.02,.55));
+}
+
+function createRecycleScene(g){
+  // BIG 3R MONUMENT — a completely different vertical sculpture
+  g.add(cyl(1.0,.09,0x3f7338,0,.36,0,64));
+  g.add(cyl(.72,.05,0x234e2c,0,.43,0,64));
+
+  // central glass-like eco sphere
+  const core=new THREE.Mesh(
+    new THREE.SphereGeometry(.36,32,24),
+    new THREE.MeshStandardMaterial({color:0x9bd35a,roughness:.28,metalness:.05,transparent:true,opacity:.82})
+  );
+  core.position.set(0,1.28,0); g.add(core);
+
+  // three large dimensional arrows around the core
+  const arrowColors=[0x8fca4d,0x62aa55,0x4d9561];
+  for(let i=0;i<3;i++){
+    const a=i*Math.PI*2/3-Math.PI/2;
+    const curve=new THREE.CatmullRomCurve3([
+      new THREE.Vector3(Math.cos(a-.65)*.78,.92,Math.sin(a-.65)*.78),
+      new THREE.Vector3(Math.cos(a)*.98,1.28,Math.sin(a)*.98),
+      new THREE.Vector3(Math.cos(a+.65)*.78,1.62,Math.sin(a+.65)*.78)
+    ]);
+    const tube=new THREE.Mesh(
+      new THREE.TubeGeometry(curve,22,.085,10,false),
+      mat(arrowColors[i],.34,0,1)
+    );
+    g.add(tube);
+    const tip=new THREE.Mesh(new THREE.ConeGeometry(.16,.34,3),mat(arrowColors[i],.3,0,1));
+    tip.position.copy(curve.getPoint(1));
+    tip.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),curve.getTangent(1).normalize());
+    g.add(tip);
+  }
+
+  // small sorting containers at the front
+  [0x66a64e,0x4d91aa,0xd3aa3d].forEach((c,i)=>{
+    const x=(i-1)*.34;
+    g.add(box(.29,.54,.38,c,x,.65,.55));
+    g.add(box(.23,.055,.40,0x1e3828,x,.95,.55));
+    g.add(box(.12,.13,.025,0xeaf2d9,x,.72,.75));
+  });
+
+  // leaves / recycled-material pieces around the monument
+  for(let i=0;i<6;i++){
+    const a=i*Math.PI/3;
+    const leaf=sphere(.10, i%2?0x74ae4c:0x9bc95c, Math.cos(a)*.67,.53,Math.sin(a)*.67);
+    leaf.scale.set(.65,1.25,.35);
+    leaf.rotation.y=a;
+    g.add(leaf);
+  }
+}
+
+function createActionsScene(g){
+  // ECO-CITY / EVERYDAY ACTIONS — house + solar roof + wind turbine + cyclist
+  g.add(cyl(1.02,.09,0x8b814d,0,.36,0,64));
+  g.add(cyl(.78,.035,0xb3a45e,0,.43,0,64));
+
+  // modern eco house
+  const house=new THREE.Group();
+  house.position.set(-.18,.42,.10);
+  house.add(box(.72,.52,.62,0xd2c49a,0,.35,0));
+  const roof=new THREE.Mesh(new THREE.ConeGeometry(.58,.38,4),mat(0x5b7447,.65));
+  roof.rotation.y=Math.PI/4; roof.position.set(0,.80,0); house.add(roof);
+  house.add(box(.17,.24,.035,0x4e9aaa,0,.38,.325));
+  house.add(box(.16,.16,.035,0xe5e2bd,-.27,.55,.325));
+  house.add(box(.16,.16,.035,0xe5e2bd,.27,.55,.325));
+  g.add(house);
+
+  // solar panels on the roof
+  for(let i=-1;i<=1;i++){
+    const panel=box(.24,.025,.19,0x2f6170,i*.22,1.05,.04);
+    panel.rotation.x=-.28;
+    g.add(panel);
+  }
+
+  // wind turbine
+  const turbine=new THREE.Group();
+  turbine.position.set(.66,.42,-.18);
+  turbine.add(cyl(.045,.9,0xe3e1d0,0,.50,0,16));
+  const hub=new THREE.Mesh(new THREE.SphereGeometry(.09,16,12),mat(0xe8e3c9,.4));
+  hub.position.set(0,.98,0); turbine.add(hub);
+  for(let i=0;i<3;i++){
+    const blade=box(.06,.43,.035,0xe7e3cc,0,.25,0);
+    blade.position.y=.25; blade.rotation.z=i*Math.PI*2/3;
+    turbine.add(blade);
+  }
+  g.add(turbine);
+
+  // person with bicycle — larger and clearly visible
+  addPerson(g,.38,.38,1.02,0x4c8d55);
+  const bike=new THREE.Group();
+  bike.position.set(.53,.47,.50);
+  const wheelMat=new THREE.MeshStandardMaterial({color:0x263b2d,roughness:.55});
+  [-.25,.25].forEach(x=>{
+    const w=new THREE.Mesh(new THREE.TorusGeometry(.19,.025,10,32),wheelMat);
+    w.rotation.x=Math.PI/2; w.position.x=x; bike.add(w);
+  });
+  bike.add(box(.43,.035,.035,0x6c9651,0,.19,0));
+  bike.add(box(.04,.28,.04,0x6c9651,.03,.31,0));
+  bike.add(box(.18,.035,.035,0x6c9651,.11,.45,0));
+  bike.add(box(.04,.25,.04,0x6c9651,.25,.32,0));
+  g.add(bike);
+
+  // small water collector
+  g.add(cyl(.18,.13,0x4e91a3,-.65,.52,.43,24));
+  g.add(cyl(.12,.04,0x78b9c4,-.65,.60,.43,24));
+
+  // flowers
+  for(let i=0;i<8;i++){
+    const a=i*Math.PI*2/8;
+    g.add(sphere(.045,i%2?0xe0a74e:0xd66c78,Math.cos(a)*.72,.47,Math.sin(a)*.72));
+  }
+}
+
+function createWasteScene(g){
+  // WASTE PROCESSING PLANT — industrial sorting machine, conveyor and containers
+  g.add(cyl(1.04,.09,0x456a61,0,.36,0,64));
+  g.add(cyl(.82,.035,0x2b5042,0,.43,0,64));
+
+  // large sorting tower
+  g.add(box(.72,.92,.62,0x596b61,-.20,.91,-.02));
+  g.add(box(.82,.12,.70,0x354a3d,-.20,1.43,-.02));
+  g.add(cyl(.16,.52,0x718477,-.20,1.68,-.02,24));
+  g.add(cyl(.21,.08,0x31483b,-.20,1.95,-.02,24));
+
+  // front conveyor belt
+  const belt=box(1.02,.11,.34,0x263d32,.12,.67,.40);
+  belt.rotation.z=-.08; g.add(belt);
+  for(let i=0;i<5;i++){
+    const roller=cyl(.07,.42,0x82937c,.12+i*.20,.74,.40,20);
+    roller.rotation.z=Math.PI/2; g.add(roller);
+  }
+
+  // three BIG waste containers with recognizable lids
+  const colors=[0x69ad50,0x4c93aa,0xd4ac3f];
+  colors.forEach((c,i)=>{
+    const x=-.52+i*.52;
+    g.add(box(.36,.62,.43,c,x,.72,.02));
+    g.add(box(.31,.07,.46,0x233a31,x,1.06,.02));
+    g.add(cyl(.08,.035,0x1b3026,x,1.105,.02,20));
+    g.add(box(.12,.13,.025,0xeaf0d8,x,.76,.245));
+  });
+
+  // cardboard boxes + bottle on conveyor
+  g.add(box(.18,.16,.16,0xb48a5e,.42,.84,.42));
+  g.add(box(.13,.23,.13,0x6ba7ad,.12,.88,.42));
+  g.add(box(.16,.12,.15,0x9d7950,-.18,.82,.42));
+
+  // hazard barrel to the side
+  g.add(cyl(.16,.30,0x8b6c49,.70,.58,-.24,24));
+  g.add(cyl(.17,.035,0x3e443a,.70,.74,-.24,24));
+  g.add(box(.13,.06,.02,0xd0b448,.70,.60,-.405));
+
+  // pipes from tower
+  const pipe=new THREE.Mesh(new THREE.TorusGeometry(.24,.035,8,24,Math.PI),mat(0x9ba58e,.45));
+  pipe.rotation.z=Math.PI/2; pipe.position.set(.40,1.25,-.02); g.add(pipe);
+}
+
+function createEventsScene(g){
+  // ENVIRONMENTAL EVENT — volunteers around a giant planted tree and banner
+  g.add(cyl(1.04,.09,0x5f824d,0,.36,0,64));
+  g.add(cyl(.80,.035,0x7f9d56,0,.43,0,64));
+
+  // giant central tree
+  const bigTree=tree(-.08,.05,1.18);
+  g.add(bigTree);
+  // exposed roots
+  for(let i=0;i<5;i++){
+    const a=i*Math.PI*2/5;
+    const root=box(.38,.07,.07,0x76523b,Math.cos(a)*.22,.46,Math.sin(a)*.22);
+    root.rotation.y=a; g.add(root);
+  }
+
+  // three volunteers in a semicircle
+  addPerson(g,-.62,.38,.82,0x8767a5);
+  addPerson(g,.55,.35,.86,0x5a8b53);
+  addPerson(g,.58,-.25,.78,0x668bb1);
+
+  // raised-arm style extra hands / signs
+  [-.62,.55].forEach((x,idx)=>{
+    g.add(cyl(.035,.30,0xd7ae82,x,.98,.37,12));
+    g.add(sphere(.055,0xd7ae82,x,1.15,.37));
+  });
+
+  // event banner
+  g.add(cyl(.025,.75,0x675844,-.72,.78,-.35,12));
+  g.add(cyl(.025,.75,0x675844,.72,.78,-.35,12));
+  g.add(box(1.22,.28,.035,0x6f9250,0,1.12,-.35));
+
+  // sapling being planted in foreground
+  g.add(cyl(.055,.28,0x76523b,-.20,.53,.48,16));
+  g.add(sphere(.17,0x65a84c,-.20,.75,.48));
+  g.add(sphere(.13,0x82bb58,-.31,.78,.48));
+
+  // flower garden ring
+  for(let i=0;i<10;i++){
+    const a=i*Math.PI*2/10;
+    g.add(sphere(.045,[0xd36e76,0xe5b14d,0xb87ad1][i%3],Math.cos(a)*.73,.47,Math.sin(a)*.73));
+  }
+}
+
+// MAIN EXHIBITION PLATFORM
+world.add(cyl(5.65,.46,0x071810,0,0,0,96));
+world.add(cyl(5.42,.20,0x183722,0,.30,0,96));
+world.add(cyl(5.12,.18,0x345d35,0,.48,0,96));
+world.add(ring(0,0,4.92,0xa8d45e));
+world.add(ring(0,0,5.20,0x456b35));
+
+// inner dark surface
+world.add(cyl(4.78,.08,0x10271a,0,.59,0,96));
+
+// central island
+world.add(cyl(1.82,.25,0x2f6240,0,.72,0,64));
+world.add(cyl(1.62,.10,0x648e4d,0,.88,0,64));
+
+// Earth texture
+function earthTexture(){
+  const c=document.createElement("canvas");
+  c.width=1024;c.height=512;
+  const x=c.getContext("2d");
+
+  const ocean=x.createLinearGradient(0,0,0,512);
+  ocean.addColorStop(0,"#3d99aa");
+  ocean.addColorStop(1,"#267688");
+  x.fillStyle=ocean;
+  x.fillRect(0,0,1024,512);
+
+  x.fillStyle="#4f9b4b";
+
+  const polys=[
+    [[60,190],[135,125],[225,145],[260,210],[230,270],[150,255],[105,310],[65,260]],
+    [[290,110],[390,85],[470,125],[440,195],[390,215],[370,290],[320,300],[300,230],[250,190]],
+    [[475,120],[560,100],[640,135],[700,190],[665,245],[600,230],[560,280],[500,250]],
+    [[700,115],[820,130],[910,185],[870,240],[780,225],[730,280],[680,230]],
+    [[420,310],[470,340],[500,420],[455,465],[420,405]],
+    [[780,285],[850,300],[890,350],[850,390],[790,360]]
+  ];
+
+  polys.forEach(p=>{
+    x.beginPath();
+    p.forEach((q,i)=>i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));
+    x.closePath();
+    x.fill();
+  });
+
+  return new THREE.CanvasTexture(c);
+}
+
+const earthMat=new THREE.MeshStandardMaterial({
+  map:earthTexture(),
+  roughness:.78,
+  metalness:0
+});
+
+const earth=mesh(
+  new THREE.SphereGeometry(1.48,64,40),
+  earthMat,
+  0,2.35,0
+);
+world.add(earth);
+world.add(ring(0,0,1.68,0xcce787));
+
+// central plaque
+const plaque=box(2.15,.52,.15,0x303a2d,0,1.00,.12);
+plaque.rotation.x=-.10;
+world.add(plaque);
+
+// central sign
+const signCanvas=document.createElement("canvas");
+signCanvas.width=700;signCanvas.height=180;
+const signCtx=signCanvas.getContext("2d");
+signCtx.fillStyle="#303b2f";
+signCtx.fillRect(0,0,700,180);
+signCtx.strokeStyle="#9db86a";
+signCtx.lineWidth=5;
+signCtx.strokeRect(4,4,692,172);
+signCtx.font="900 31px Arial";
+signCtx.fillStyle="#f1e7b2";
+signCtx.textAlign="center";
+signCtx.textBaseline="middle";
+signCtx.fillText("БУДУЩЕЕ ПЛАНЕТЫ",350,70);
+signCtx.fillText("В НАШИХ РУКАХ",350,115);
+
+const signTex=new THREE.CanvasTexture(signCanvas);
+signTex.colorSpace=THREE.SRGBColorSpace;
+
+const sign=new THREE.Mesh(
+  new THREE.PlaneGeometry(2.2,.57),
+  new THREE.MeshBasicMaterial({map:signTex,transparent:true})
+);
+sign.position.set(0,1.0,.22);
+sign.rotation.x=-.10;
+world.add(sign);
+
+// central trees
+for(let i=0;i<18;i++){
+  const a=i*Math.PI*2/18;
+  world.add(
+    tree(
+      Math.cos(a)*2.72,
+      Math.sin(a)*2.72,
+      .55+(i%3)*.08
+    )
+  );
+}
+
+// station groups
+const stations=[];
+
+stationData.forEach((d,i)=>{
+  const g=new THREE.Group();
+  g.position.set(d.x,.06,d.z);
+  g.userData.step=i+1;
+  g.userData.data=d;
+
+  // elevated island
+  g.add(cyl(1.12,.22,0x112b1d,0,.17,0,56));
+  g.add(cyl(1.00,.09,0x405f39,0,.32,0,56));
+  g.add(stationGlow(1.06,d.color));
+  g.add(ring(0,0,.96,d.color));
+
+  if(i===0) createPollutionScene(g);
+  if(i===1) createKazakhstanScene(g);
+  if(i===2) createRecycleScene(g);
+  if(i===3) createActionsScene(g);
+  if(i===4) createWasteScene(g);
+  if(i===5) createEventsScene(g);
+
+  // Floating title + numbered glowing hotspot, inspired by the reference mockup.
+  addStationMarkers(g,d,i);
+
+  stations.push(g);
+  world.add(g);
+});
+
+// glowing route tubes
+for(let i=0;i<stationData.length;i++){
+  const a=stationData[i];
+  const b=stationData[(i+1)%stationData.length];
+
+  const mid1=new THREE.Vector3(
+    (a.x+b.x)/2,
+    .66,
+    (a.z+b.z)/2
+  );
+
+  const lift=new THREE.Vector3(
+    (a.x+b.x)/2,
+    .95,
+    (a.z+b.z)/2
+  );
+
+  const pts=[
+    new THREE.Vector3(a.x,.66,a.z),
+    new THREE.Vector3(
+      (a.x+mid1.x)/2,
+      .72,
+      (a.z+mid1.z)/2
+    ),
+    lift,
+    new THREE.Vector3(
+      (b.x+mid1.x)/2,
+      .72,
+      (b.z+mid1.z)/2
+    ),
+    new THREE.Vector3(b.x,.66,b.z)
+  ];
+
+  const curve=new THREE.CatmullRomCurve3(pts);
+
+  world.add(
+    mesh(
+      new THREE.TubeGeometry(curve,50,.075,8,false),
+      mat(0xe9efb2,.32,0,1)
+    )
+  );
+
+  // multiple arrows
+  [.25,.55,.80].forEach(t=>{
+    const pos=curve.getPoint(t);
+    const tan=curve.getTangent(t).normalize();
+
+    const arrow=mesh(
+      new THREE.ConeGeometry(.13,.34,4),
+      mat(0xf3f4c7,.25,0,1)
+    );
+
+    arrow.position.copy(pos);
+    arrow.quaternion.setFromUnitVectors(
+      new THREE.Vector3(0,1,0),
+      tan
+    );
+
+    world.add(arrow);
+  });
+}
+
+// small foreground vegetation
+for(let i=0;i<10;i++){
+  world.add(tree(-3.8+i*.85,-.1+Math.sin(i)*.18,.32+(i%2)*.06));
+}
+
+// raycasting
+const raycaster=new THREE.Raycaster();
+const mouse=new THREE.Vector2();
+
+function resize(){
+  const w=host.clientWidth;
+  const h=host.clientHeight;
+  renderer.setSize(w,h,false);
+  camera.aspect=w/h;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener("resize",resize);
+resize();
+
+let selected=1;
+
+function selectStep(n){
+  selected=n;
+
+  document.querySelectorAll(".step").forEach(s=>{
+    s.classList.toggle("active",+s.dataset.step===n);
+  });
+
+  stations.forEach((s,i)=>{
+    const active=i===n-1;
+    s.scale.setScalar(active?1.08:1);
+    if(s.userData.hotspot){
+      s.userData.hotspot.material.opacity=active?1:.68;
+      s.userData.hotspot.scale.setScalar(active?1.16:1);
+    }
+    if(s.userData.halo){
+      s.userData.halo.material.opacity=active?.72:.24;
+      s.userData.halo.scale.setScalar(active?1.18:1);
+    }
+    if(s.userData.marker) s.userData.marker.scale.setScalar(active?1.12:1);
+  });
+
+  const d=stationData[n-1];
+  const tag=document.getElementById("selectedTag");
+  tag.textContent="● "+d.title;
+  tag.classList.add("show");
+
+  updateAI(n);
+}
+
+function getStationText(n){
+  const d=stationData[n-1];
+  return currentLang==="ru" ? {title:d.title,short:d.short,bullets:d.bullets} : d.i18n[currentLang];
+}
+
+function updateAI(n){
+  const d=getStationText(n);
+  document.getElementById("bubble").innerHTML=
+    "<strong>🌿 "+d.title+"</strong><br>• "+d.bullets.join("<br>• ");
+}
+
+// interaction
+canvas.addEventListener("pointerdown",e=>{
+  drag=true;
+  canvas.classList.add("dragging");
+  lastX=e.clientX;
+  lastY=e.clientY;
+  velX=0;
+  canvas.setPointerCapture(e.pointerId);
+});
+
+canvas.addEventListener("pointermove",e=>{
+  if(!drag)return;
+
+  const dx=e.clientX-lastX;
+  const dy=e.clientY-lastY;
+
+  lastX=e.clientX;
+  lastY=e.clientY;
+
+  yaw+=dx*.0085;
+  pitch=Math.max(-.28,Math.min(.45,pitch+dy*.0035));
+  velX=dx*.0085;
+});
+
+canvas.addEventListener("pointerup",()=>{
+  drag=false;
+  canvas.classList.remove("dragging");
+});
+
+canvas.addEventListener("pointercancel",()=>{
+  drag=false;
+  canvas.classList.remove("dragging");
+});
+
+canvas.addEventListener("wheel",e=>{
+  e.preventDefault();
+  distance=Math.max(8.4,Math.min(14,distance+e.deltaY*.007));
+},{passive:false});
+
+canvas.addEventListener("click",e=>{
+  const r=canvas.getBoundingClientRect();
+
+  mouse.x=(e.clientX-r.left)/r.width*2-1;
+  mouse.y=-(e.clientY-r.top)/r.height*2+1;
+
+  raycaster.setFromCamera(mouse,camera);
+
+  const hits=raycaster.intersectObjects(stations,true);
+
+  if(hits.length){
+    let o=hits[0].object;
+
+    while(o.parent&&!o.userData.step)o=o.parent;
+
+    if(o.userData.step)selectStep(o.userData.step);
+  }
+});
+
+function updateCamera(){
+  world.rotation.y=yaw;
+  world.rotation.x=pitch;
+
+  camera.position.set(0,7.7,distance);
+  camera.lookAt(0,.85,0);
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+
+  if(auto&&!drag){
+    yaw+=.0012;
+    velX*=.96;
+  }
+
+  if(!auto&&!drag&&Math.abs(velX)>.0001){
+    yaw+=velX;
+    velX*=.94;
+  }
+
+  // gentle earth rotation
+  earth.rotation.y+=.0012;
+
+  // Selected station spark / pulse effect.
+  const pulse=1+Math.sin(performance.now()*.006)*.07;
+  stations.forEach((s,i)=>{
+    if(i===selected-1){
+      if(s.userData.hotspot) s.userData.hotspot.scale.setScalar(1.08*pulse);
+      if(s.userData.halo) s.userData.halo.scale.setScalar(1.08*pulse);
+      if(s.userData.marker) s.userData.marker.position.y=1.55+Math.sin(performance.now()*.004)*.035;
+    }
+  });
+
+  updateCamera();
+  renderer.render(scene,camera);
+}
+
+animate();
+
+// UI
+function reset(){
+  yaw=0;
+  pitch=.06;
+  distance=11.5;
+  selectStep(1);
+}
+
+document.getElementById("resetBtn").onclick=reset;
+
+document.getElementById("autoBtn").onclick=()=>{
+  auto=!auto;
+  const btn=document.getElementById("autoBtn");
+  btn.classList.toggle("on",auto);
+  btn.textContent=auto?"▶ Авто":"Ⅱ Пауза";
+};
+
+document.getElementById("zoomIn").onclick=()=>{
+  distance=Math.max(8.4,distance-1);
+};
+
+document.getElementById("zoomOut").onclick=()=>{
+  distance=Math.min(14,distance+1);
+};
+
+document.getElementById("fullBtn").onclick=()=>{
+  if(!document.fullscreenElement){
+    host.requestFullscreen?.();
+  }else{
+    document.exitFullscreen?.();
+  }
+};
+
+// AI ASSISTANT — calm bilingual guided tour (RU / EN).
+const aiContent={
+  ru:{
+    intro:"Добро пожаловать! Я ваш виртуальный помощник и экскурсовод. Я спокойно проведу вас по всем шести сценам. Начнём с экологических угроз.",
+    answers:{
+      1:"Экологические угрозы — это загрязнение воздуха и воды, изменение климата и потеря лесов. На первой сцене вы видите промышленный объект и дым. Он показывает, как деятельность человека может влиять на окружающую среду.",
+      2:"Эта сцена посвящена экологической безопасности Казахстана. Здесь показаны государственные меры, охрана природы и ответственное использование природных ресурсов. Главная идея — развитие страны должно идти вместе с заботой об окружающей среде.",
+      3:"Три слова описывают простой принцип. Reduce — потреблять меньше. Reuse — использовать вещи повторно. Recycle — передавать подходящие материалы на переработку. Вместе эти действия помогают уменьшать количество отходов.",
+      4:"Каждый человек может внести небольшой, но важный вклад. Экономьте воду и энергию, сортируйте отходы, выбирайте многоразовые вещи и экологичный транспорт. Даже простые ежедневные привычки постепенно дают большой результат.",
+      5:"Правильная утилизация начинается с сортировки. Разделяйте отходы по типам, отправляйте перерабатываемые материалы в специальные контейнеры, а опасные отходы сдавайте отдельно. Так меньше мусора попадает в окружающую среду.",
+      6:"Экологические мероприятия объединяют людей вокруг полезного дела. Это могут быть субботники, посадка деревьев, экологические акции и волонтёрские проекты. Участие помогает не только природе, но и вашему сообществу."
+    },
+    tour:["Экологические угрозы.","Безопасность в Казахстане.","Reduce, Reuse, Recycle.","Наши действия.","Утилизация отходов.","Природоохранные мероприятия."]
+  },
+  en:{
+    intro:"Welcome! I am your AI assistant and guide. I will calmly take you through all six scenes. Let us start with environmental threats.",
+    answers:{
+      1:"Environmental threats include air and water pollution, climate change, and the loss of forests. In the first scene, you can see an industrial facility and smoke. It shows how human activity can affect the environment.",
+      2:"This scene is about environmental safety in Kazakhstan. It represents environmental laws, nature protection, and responsible use of natural resources. The main idea is that national development should go together with care for the environment.",
+      3:"These three words describe a simple principle. Reduce means consume less. Reuse means use things again. Recycle means send suitable materials for recycling. Together, these actions help reduce waste.",
+      4:"Every person can make a small but meaningful contribution. Save water and energy, sort your waste, choose reusable products, and use greener transportation. Simple daily habits can create a much bigger result over time.",
+      5:"Good waste management starts with sorting. Separate waste by type, place recyclable materials in the right containers, and keep hazardous waste separate. This helps prevent waste from entering the environment.",
+      6:"Environmental activities bring people together for a useful purpose. They can include cleanups, tree planting, environmental campaigns, and volunteering. Taking part helps both nature and the local community."
+    },
+    tour:["Environmental threats.","Safety in Kazakhstan.","Reduce, Reuse, Recycle.","Our actions.","Waste management.","Environmental activities."]
+  }
+};
+
+// KZ is a full site language, but the spoken assistant intentionally falls back to Russian.
+// This avoids requiring a Kazakh speech voice while keeping the whole interface translated.
+let currentLang="ru";
+let tourActive=false;
+let tourToken=0;
+
+function assistantLang(){
+  return currentLang==="en" ? "en" : "ru";
+}
+
+function stationSpeech(n){
+  return aiContent[assistantLang()].answers[n];
+}
+
+function pickVoice(lang){
+  if(!("speechSynthesis" in window)) return null;
+  const voices=speechSynthesis.getVoices();
+  if(!voices.length) return null;
+
+  if(lang==="en"){
+    const preferred=["Samantha","Alex","Daniel","Karen","Moira","Google US English","Google UK English"];
+    return voices.find(v=>preferred.some(name=>v.name.toLowerCase().includes(name.toLowerCase())))
+      || voices.find(v=>/^en(-|_)/i.test(v.lang)) || null;
+  }
+
+  // RU: choose a real Russian voice, never an English fallback by mistake.
+  const preferred=["Milena","Yuri","Irina","Katya","Russian","Google русский","Google Russian"];
+  return voices.find(v=>{
+    const n=v.name.toLowerCase();
+    return preferred.some(name=>n.includes(name.toLowerCase())) && /^ru(-|_)/i.test(v.lang);
+  })
+  || voices.find(v=>/^ru(-|_)/i.test(v.lang) && v.localService)
+  || voices.find(v=>/^ru(-|_)/i.test(v.lang))
+  || null;
+}
+
+function speak(text, lang=assistantLang(), onEnd=null){
+  if(!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang=lang==="en" ? "en-US" : "ru-RU";
+  u.rate=lang==="en" ? .82 : .70;
+  u.pitch=1.0;
+  u.volume=1.0;
+
+  const voice=pickVoice(lang);
+  if(voice){
+    u.voice=voice;
+    u.lang=voice.lang;
+  }
+
+  u.onend=()=>{if(onEnd) onEnd();};
+  u.onerror=()=>{if(onEnd) onEnd();};
+  speechSynthesis.speak(u);
+}
+
+if("speechSynthesis" in window){
+  speechSynthesis.getVoices();
+  speechSynthesis.addEventListener?.("voiceschanged",()=>speechSynthesis.getVoices());
+}
+
+function stopTour(){
+  tourActive=false;
+  tourToken++;
+  if("speechSynthesis" in window) speechSynthesis.cancel();
+}
+
+function showAI(n, speakIt=false){
+  const d=getStationText(n);
+  const lang=assistantLang();
+  const text=stationSpeech(n);
+  document.getElementById("bubble").innerHTML=
+    "<strong>🤖 "+d.title+"</strong>"+text;
+  if(speakIt) speak(text,lang);
+}
+
+function runTourStep(step, token){
+  if(!tourActive || token!==tourToken) return;
+  if(step>6){
+    tourActive=false;
+    const done=assistantLang()==="en"
+      ? "That was the full tour. You can click any scene to hear its explanation again."
+      : "Это была полная экскурсия. Вы можете нажать на любую сцену и услышать её объяснение ещё раз.";
+    document.getElementById("bubble").innerHTML="<strong>🌍 "+(currentLang==="en"?"Tour complete":"Экскурсия завершена")+"</strong>"+done;
+    speak(done,assistantLang());
+    return;
+  }
+
+  selectStep(step);
+  const d=getStationText(step);
+  const text=stationSpeech(step);
+  document.getElementById("bubble").innerHTML="<strong>🌿 "+d.title+"</strong>"+text;
+
+  speak(text,assistantLang(),()=>{
+    if(!tourActive || token!==tourToken)return;
+    setTimeout(()=>runTourStep(step+1,token),850);
+  });
+}
+
+function startTour(){
+  stopTour();
+  tourActive=true;
+  const token=++tourToken;
+  const lang=assistantLang();
+  const intro=aiContent[lang].intro;
+  document.getElementById("bubble").innerHTML=
+    "<strong>👋 "+(lang==="en"?"Welcome!":"Добро пожаловать!")+"</strong>"+intro;
+  speak(intro,lang,()=>{
+    if(tourActive && token===tourToken) setTimeout(()=>runTourStep(1,token),900);
+  });
+}
+
+function answer(n){
+  stopTour();
+  selectStep(n);
+  showAI(n,true);
+}
+
+document.querySelectorAll(".step").forEach(s=>{
+  s.addEventListener("click",()=>{ stopTour(); selectStep(+s.dataset.step); });
+});
+
+document.querySelectorAll(".question").forEach(q=>{
+  q.onclick=()=>answer(+q.dataset.q);
+});
+
+document.getElementById("tourBtn").onclick=startTour;
+
+document.getElementById("voiceBtn").onclick=()=>{
+  if("speechSynthesis" in window && speechSynthesis.speaking){
+    stopTour();
+  }else{
+    const n=selected||1;
+    showAI(n,true);
+  }
+};
+
+document.getElementById("askBtn").onclick=()=>{
+  const input=document.getElementById("askInput");
+  const q=input.value.trim();
+  if(!q)return;
+
+  stopTour();
+
+  const low=q.toLowerCase();
+  let n=null;
+  if(/угроз|загряз|климат|threat|pollution|climate/.test(low)) n=1;
+  else if(/казахстан|қазақстан|safety|law|закон/.test(low)) n=2;
+  else if(/reduce|reuse|recycle|3r|переработ/.test(low)) n=3;
+  else if(/помочь|действ|help|action|энерг|water|вода/.test(low)) n=4;
+  else if(/утилиз|отход|мусор|waste|sort|сорт/.test(low)) n=5;
+  else if(/мероприят|акци|суббот|волонт|event|volunteer|tree/.test(low)) n=6;
+
+  if(n){
+    answer(n);
+  }else{
+    const fallback=currentLang==="en"
+      ? "I can explain each of the six scenes. Try asking about environmental threats, Kazakhstan, the 3R principle, our actions, waste management, or environmental activities."
+      : "Я могу подробно объяснить все шесть сцен. Спросите об экологических угрозах, Казахстане, принципе 3R, наших действиях, утилизации отходов или природоохранных мероприятиях.";
+    document.getElementById("bubble").innerHTML="<strong>🤖 "+(currentLang==="en"?"Your question":"Ваш вопрос")+"</strong>"+fallback;
+    speak(fallback,assistantLang());
+  }
+  input.value="";
+};
+
+document.getElementById("askInput").addEventListener("keydown",e=>{
+  if(e.key==="Enter")document.getElementById("askBtn").click();
+});
+
+document.getElementById("darkBtn").onclick=()=>{
+  document.body.classList.add("darkMode");
+};
+
+document.getElementById("lightBtn").onclick=()=>{
+  document.body.classList.remove("darkMode");
+};
+
+const ui={
+  ru:{
+    brandSmall:"ЭКОЛОГИЧЕСКАЯ",brand:"БЕЗОПАСНОСТЬ",
+    nav:["Обзор","Угрозы","Казахстан","3R","Наши действия","Утилизация","Мероприятия"],
+    leftTitle:"НАВИГАЦИЯ ПО МАКЕТУ",controlTitle:"УПРАВЛЕНИЕ 3D",interactiveTitle:"ИНТЕРАКТИВНЫЙ СТЕНД",
+    help1:"🖱 Перетаскивайте модель мышью, чтобы вращать её на 360°.",
+    help2:"◉ Колесо мыши — приближение.",
+    help3:"◉ Два пальца — вращение и масштаб.",
+    interactiveHelp:"Вращайте модель, нажимайте на этапы и узнавайте больше об экологической безопасности.",
+    eyebrow:"ИНТЕРАКТИВНЫЙ 3D-СТЕНД",title:"ВМЕСТЕ МЫ ДЕЛАЕМ МИР ЧИЩЕ!",
+    subtitle:"Интерактивный 3D-стенд об экологической безопасности и устойчивом будущем",
+    reset:"↻ Сбросить",auto:"▶ Авто",pause:"Ⅱ Пауза",zoomIn:"⌕ Приблизить",zoomOut:"⊖ Отдалить",full:"⛶ Во весь экран",
+    tip:"💡 Нажимайте на любую сцену макета для получения подробной информации",
+    ai:"AI-АССИСТЕНТ",online:"Онлайн",welcome:"Добро пожаловать!",tour:"Начать экскурсию",
+    input:"Задайте любой вопрос...",questions:["Какие основные экологические угрозы?","Что такое Reduce, Reuse, Recycle?","Как правильно сортировать отходы?","Как я могу помочь природе?","Экологическая ситуация в Казахстане?","Какие мероприятия можно посетить?"],
+    stats:[">1,3°C|Уже повысилась|температура на планете","75%|Пресной воды используется|человеком","24|Млн га лесов теряется|ежегодно","2|Тонны отходов производит|человек в год","Каждый из нас|может изменить будущее|нашей планеты"]
+  },
+  kz:{
+    brandSmall:"ЭКОЛОГИЯЛЫҚ",brand:"ҚАУІПСІЗДІК",
+    nav:["Шолу","Қауіптер","Қазақстан","3R","Біздің әрекеттеріміз","Кәдеге жарату","Іс-шаралар"],
+    leftTitle:"МАКЕТ БОЙЫНША НАВИГАЦИЯ",controlTitle:"3D БАСҚАРУ",interactiveTitle:"ИНТЕРАКТИВТІ СТЕНД",
+    help1:"🖱 Модельді тышқанмен сүйреп, 360° бұрыңыз.",
+    help2:"◉ Тышқан дөңгелегі — жақындату.",
+    help3:"◉ Екі саусақ — бұру және масштабтау.",
+    interactiveHelp:"Модельді бұрып, кезеңдерді басып, экологиялық қауіпсіздік туралы көбірек біліңіз.",
+    eyebrow:"ИНТЕРАКТИВТІ 3D-СТЕНД",title:"БІРГЕ БІЗ ӘЛЕМДІ ТАЗАРТАМЫЗ!",
+    subtitle:"Экологиялық қауіпсіздік және тұрақты болашақ туралы интерактивті 3D-стенд",
+    reset:"↻ Қалпына келтіру",auto:"▶ Авто",pause:"Ⅱ Үзіліс",zoomIn:"⌕ Жақындату",zoomOut:"⊖ Алыстату",full:"⛶ Толық экран",
+    tip:"💡 Толық ақпарат алу үшін макеттегі кез келген кезеңді басыңыз",
+    ai:"AI-КӨМЕКШІ",online:"Онлайн",welcome:"Қош келдіңіз!",tour:"Экскурсияны бастау",
+    input:"Кез келген сұрақ қойыңыз...",questions:["Негізгі экологиялық қауіптер қандай?","Reduce, Reuse, Recycle деген не?","Қалдықтарды қалай дұрыс сұрыптаймыз?","Табиғатқа қалай көмектесе аламын?","Қазақстандағы экологиялық жағдай қандай?","Қандай экологиялық іс-шараларға қатысуға болады?"],
+    stats:[" >1,3°C|Планетадағы температура|көтерілді","75%|Тұщы судың|адамдар пайдаланады","24|Жыл сайын|млн га орман жоғалады","2|Адам жылына|тонна қалдық шығарады","Әрқайсымыз|болашақты|өзгерте аламыз"]
+  },
+  en:{
+    brandSmall:"ENVIRONMENTAL",brand:"SAFETY",
+    nav:["Overview","Threats","Kazakhstan","3R","Our actions","Waste","Activities"],
+    leftTitle:"MODEL NAVIGATION",controlTitle:"3D CONTROLS",interactiveTitle:"INTERACTIVE STAND",
+    help1:"🖱 Drag the model with your mouse to rotate it 360°.",
+    help2:"◉ Mouse wheel — zoom.",
+    help3:"◉ Two fingers — rotate and scale.",
+    interactiveHelp:"Rotate the model, click the stages, and learn more about environmental safety.",
+    eyebrow:"INTERACTIVE 3D STAND",title:"TOGETHER WE MAKE THE WORLD CLEANER!",
+    subtitle:"An interactive 3D stand about environmental safety and a sustainable future",
+    reset:"↻ Reset",auto:"▶ Auto",pause:"Ⅱ Pause",zoomIn:"⌕ Zoom in",zoomOut:"⊖ Zoom out",full:"⛶ Full screen",
+    tip:"💡 Click any stage of the model for detailed information",
+    ai:"AI ASSISTANT",online:"Online",welcome:"Welcome!",tour:"Start the tour",
+    input:"Ask any question...",questions:["What are the main environmental threats?","What are Reduce, Reuse, Recycle?","How should I sort waste?","How can I help nature?","What is the environmental situation in Kazakhstan?","What environmental activities can I join?"],
+    stats:[">1.3°C|The planet's temperature|has already increased","75%|Fresh water is|used by people","24|Million hectares of forest|are lost every year","2|Tonnes of waste|produced per person each year","Each of us|can change|our planet's future"]
+  }
+};
+
+function setLanguage(lang){
+  currentLang=lang;
+  stopTour();
+
+  document.documentElement.lang=lang==="kz"?"kk":lang;
+  document.querySelectorAll(".langs button").forEach(b=>b.classList.toggle("active",b.dataset.lang===lang));
+
+  const t=ui[lang];
+  const brand=document.querySelector(".brand");
+  brand.querySelector("small").textContent=t.brandSmall;
+  brand.querySelector("b").textContent=t.brand;
+
+  document.querySelector(".sectionTitle").textContent=t.leftTitle;
+  document.querySelectorAll(".sectionTitle")[1].textContent=t.controlTitle;
+  document.querySelectorAll(".sectionTitle")[2].textContent=t.interactiveTitle;
+
+  const help=document.querySelector(".help");
+  help.innerHTML=t.help1+"<br><br>"+t.help2+"<br><br>"+t.help3;
+  document.querySelectorAll(".help")[1].textContent=t.interactiveHelp;
+
+  document.querySelector(".eyebrow").textContent=t.eyebrow;
+  document.querySelector(".title").textContent=t.title;
+  document.querySelector(".subtitle").textContent=t.subtitle;
+
+  document.getElementById("resetBtn").textContent=t.reset;
+  document.getElementById("autoBtn").textContent=auto?t.auto:t.pause;
+  document.getElementById("zoomIn").textContent=t.zoomIn;
+  document.getElementById("zoomOut").textContent=t.zoomOut;
+  document.getElementById("fullBtn").textContent=t.full;
+  document.querySelector(".tip span").textContent=t.tip.replace(/^💡\s*/,"");
+
+  document.querySelector(".aiHead b").textContent=t.ai;
+  document.querySelector(".online").textContent=t.online;
+  document.getElementById("tourBtn").innerHTML="▶ &nbsp; "+t.tour;
+  document.getElementById("askInput").placeholder=t.input;
+
+  document.querySelectorAll(".question").forEach((q,i)=>q.textContent=t.questions[i]);
+
+  const stepLabels=stationData.map((d,i)=>getStationText(i+1).short);
+  const stepLong=lang==="ru"
+    ? ["Экологические<br>угрозы","Безопасность в<br>Казахстане","Reduce<br>Reuse<br>Recycle","Что может сделать<br>каждый из нас?","Утилизация<br>отходов","Участие в<br>природоохранных<br>мероприятиях"]
+    : lang==="en"
+      ? ["Environmental<br>threats","Safety in<br>Kazakhstan","Reduce<br>Reuse<br>Recycle","What can<br>each of us do?","Waste<br>management","Environmental<br>activities"]
+      : ["Экологиялық<br>қауіптер","Қазақстандағы<br>қауіпсіздік","Reduce<br>Reuse<br>Recycle","Әрқайсымыз<br>не істей аламыз?","Қалдықтарды<br>кәдеге жарату","Табиғатты қорғау<br>іс-шаралары"];
+
+  document.querySelectorAll(".stepText").forEach((el,i)=>el.innerHTML=stepLong[i]);
+
+  // Update all 3D title cards to the selected language.
+  stations.forEach((s,i)=>{
+    const d=getStationText(i+1);
+    const old=s.userData.titleSprite;
+    if(old){
+      const replacement=makeTitleCard(d.title,stationData[i].color);
+      replacement.position.copy(old.position);
+      replacement.scale.copy(old.scale);
+      s.userData.marker.remove(old);
+      s.userData.marker.add(replacement);
+      s.userData.titleSprite=replacement;
+    }
+  });
+
+  const selectedData=getStationText(selected);
+  document.getElementById("selectedTag").textContent="● "+selectedData.title;
+
+  // KZ interface is fully translated; speech assistant remains Russian.
+  const welcome=lang==="en"
+    ? "The interface is now in English. The voice assistant will speak English."
+    : lang==="kz"
+      ? "Интерфейс қазақ тіліне ауыстырылды. Дауыс көмекшісі орыс тілінде сөйлейді."
+      : "Интерфейс на русском. Голосовой помощник говорит по-русски.";
+  document.getElementById("bubble").innerHTML="<strong>🤖 "+t.ai+"</strong>"+welcome;
+
+  const statEls=document.querySelectorAll(".stat");
+  statEls.forEach((el,i)=>{
+    const parts=t.stats[i].split("|");
+    el.querySelector("b").textContent=parts[0].trim();
+    el.querySelector("span").innerHTML=parts.slice(1).join("<br>");
+  });
+}
+
+document.querySelectorAll(".langs button").forEach(btn=>{
+  btn.onclick=()=>setLanguage(btn.dataset.lang);
+});
+
+selectStep(1);
+setLanguage("ru");
+</script>
+</body>
+</html>
