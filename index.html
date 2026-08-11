@@ -211,6 +211,318 @@ body{overflow:hidden}
 .aiButtons .primary{transition:all .2s ease}
 .aiButtons .primary.speaking{box-shadow:0 0 0 2px #a9d75d55,0 0 22px #a9d75d55}
 .bubble{transition:opacity .25s ease,transform .25s ease}
+
+/* =========================
+   MOBILE RESPONSIVE LAYOUT
+   ========================= */
+@media (max-width: 900px){
+  html, body{
+    width:100%;
+    min-width:0;
+    height:auto;
+  }
+
+  body{
+    overflow-x:hidden;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .app{
+    width:100%;
+    min-height:100svh;
+    height:auto;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* Header: compact, but keep all language controls visible */
+  .topbar{
+    width:100%;
+    min-height:70px;
+    height:auto;
+    flex:0 0 auto;
+    padding:9px 10px;
+    gap:8px;
+    border-radius:0 0 18px 18px;
+    align-items:center;
+  }
+
+  .brand{
+    min-width:0;
+    flex:1 1 auto;
+    gap:8px;
+  }
+
+  .brandMark{
+    width:42px;
+    height:42px;
+    min-width:42px;
+    border-radius:12px;
+    font-size:23px;
+  }
+
+  .brand small{
+    font-size:8px;
+    letter-spacing:2px;
+  }
+
+  .brand b{
+    font-size:13px;
+    letter-spacing:.6px;
+  }
+
+  .headerSpacer{display:none}
+
+  .headerControls{
+    margin-left:auto;
+    gap:5px;
+    flex:0 0 auto;
+  }
+
+  .langs{
+    padding:3px;
+    border-radius:22px;
+  }
+
+  .langs button{
+    min-width:38px;
+    padding:8px 8px;
+    font-size:11px;
+  }
+
+  .theme button{
+    width:38px;
+    height:38px;
+    font-size:17px;
+  }
+
+  /* Mobile page becomes a clean vertical flow */
+  .main{
+    width:100%;
+    min-height:0;
+    flex:0 0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    padding:12px 8px 10px;
+  }
+
+  .left{
+    display:none;
+  }
+
+  .center{
+    width:100%;
+    min-width:0;
+    min-height:0;
+    height:auto;
+    overflow:visible;
+    border-radius:18px;
+    order:1;
+  }
+
+  .eyebrow{
+    margin-top:2px;
+    font-size:9px;
+    letter-spacing:1.2px;
+  }
+
+  .title{
+    width:100%;
+    margin:4px 4px 3px;
+    padding:0 8px;
+    font-size:clamp(21px,6.2vw,29px);
+    line-height:1.04;
+    letter-spacing:-.7px;
+  }
+
+  .subtitle{
+    width:100%;
+    padding:0 18px;
+    font-size:10px;
+    line-height:1.35;
+  }
+
+  /* The 3D model gets a dedicated, stable mobile viewport */
+  .scene{
+    width:100%;
+    height:clamp(410px,108vw,500px);
+    min-height:410px;
+    flex:none;
+    margin-top:3px;
+    border-radius:18px;
+    overflow:hidden;
+  }
+
+  .scene canvas{
+    touch-action:none;
+  }
+
+  .selectedTag{
+    top:8px;
+    max-width:78%;
+    padding:7px 11px;
+    font-size:10px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  /* Controls stay usable on a phone and do not run off-screen */
+  .controls{
+    width:calc(100% - 24px);
+    max-width:430px;
+    bottom:57px;
+    left:50%;
+    padding:4px;
+    gap:2px;
+    border-radius:18px;
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+  }
+
+  .controls button{
+    min-width:0;
+    padding:8px 3px;
+    border-radius:14px;
+    font-size:9px;
+    line-height:1.1;
+    white-space:normal;
+  }
+
+  .tip{
+    width:calc(100% - 24px);
+    max-width:430px;
+    bottom:8px;
+    padding:8px 10px;
+    border-radius:15px;
+    font-size:9px;
+    line-height:1.25;
+    white-space:normal;
+    text-align:center;
+  }
+
+  /* AI assistant becomes a full-width card underneath the model */
+  .right{
+    width:100%;
+    min-height:0;
+    order:2;
+    padding:12px;
+    border-radius:18px;
+  }
+
+  .aiHead{
+    padding:2px 4px 10px;
+  }
+
+  .bot{
+    width:42px;
+    height:42px;
+    min-width:42px;
+    font-size:22px;
+  }
+
+  .aiHead b{
+    font-size:14px;
+  }
+
+  .online{
+    font-size:10px;
+  }
+
+  .bubble{
+    min-height:0;
+    padding:13px;
+    font-size:12px;
+    line-height:1.5;
+  }
+
+  .bubble strong{
+    font-size:15px;
+    margin-bottom:6px;
+  }
+
+  .aiButtons{
+    margin-top:9px;
+  }
+
+  .primary,.voice{
+    height:46px;
+  }
+
+  .questions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:7px;
+    margin-top:9px;
+  }
+
+  .question{
+    min-height:44px;
+    padding:9px 10px;
+    font-size:10px;
+    line-height:1.25;
+  }
+
+  .input{
+    margin-top:9px;
+  }
+
+  .input input{
+    padding:12px;
+    font-size:11px;
+  }
+
+  /* Stats become a readable 2-column grid */
+  .stats{
+    width:100%;
+    height:auto;
+    min-height:0;
+    flex:0 0 auto;
+    grid-template-columns:1fr 1fr;
+    border-radius:18px 18px 0 0;
+  }
+
+  .stat{
+    min-width:0;
+    min-height:74px;
+    padding:11px 10px;
+    gap:8px;
+    border-right:1px solid #abc87b25;
+    border-bottom:1px solid #abc87b25;
+  }
+
+  .stat:nth-child(2n){
+    border-right:0;
+  }
+
+  .statIcon{
+    font-size:20px;
+  }
+
+  .stat b{
+    font-size:14px;
+  }
+
+  .stat span{
+    font-size:8.5px;
+    line-height:1.25;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 380px){
+  .brand small{font-size:7px;letter-spacing:1.5px}
+  .brand b{font-size:11px}
+  .brandMark{width:38px;height:38px;min-width:38px}
+  .langs button{min-width:34px;padding:7px 6px}
+  .theme button{width:34px;height:36px}
+  .scene{height:420px;min-height:420px}
+  .controls button{font-size:8px;padding:7px 2px}
+  .question{font-size:9px}
+}
+
 </style>
 </head>
 
@@ -402,7 +714,7 @@ const stationData = [
     }
   },
   {
-    title:"ЭКОЛОГИЧЕСКАЯ БЕЗОПАСНОСТЬ В КАЗАХСТАНЕ",
+    title:"БЕЗОПАСНОСТЬ В КАЗАХСТАНЕ",
     color:0x7ba84b,
     short:"Казахстан",
     x:-1.15,z:3.15,
@@ -1102,6 +1414,30 @@ function resize(){
 }
 window.addEventListener("resize",resize);
 resize();
+
+/* Mobile camera framing */
+function applyResponsiveCamera(){
+  const mobile = window.innerWidth <= 900;
+  if(mobile){
+    // A little farther back on phones so the complete exhibition remains visible.
+    distance = Math.max(distance, 12.8);
+    camera.fov = 34;
+  }else{
+    camera.fov = 32;
+  }
+  camera.updateProjectionMatrix();
+}
+
+const originalResize = resize;
+resize = function(){
+  originalResize();
+  applyResponsiveCamera();
+};
+window.addEventListener("orientationchange",()=>{
+  setTimeout(applyResponsiveCamera,150);
+});
+applyResponsiveCamera();
+
 
 let selected=1;
 
